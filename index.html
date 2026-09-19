@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Estilos -->
+    <link rel="stylesheet" href="style.css" />
+    <title>Mamona's Açaí</title>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img class="logo-img" id="logo-img" src="" alt="" hidden>
+            <h1>Mamona's Açaí</h1>
+        </div>
+
+        <div class="search-container" role="search">
+            <input placeholder="Buscar Produto..." class="search-input" aria-label="Buscar Produto" />
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        </div>
+
+        <nav class="header-nav" aria-label="Navegação da página">
+            <a href="#inicio">Início</a>
+            <a href="#produtos">Produtos</a>
+            <a href="#about-section" id="nav-sobre-link" hidden>Sobre</a>
+        </nav>
+
+        <div class="cart-icon" aria-label="Abrir carrinho" role="button" tabindex="0">
+            <span class="cart-icon-inner">
+                <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                <span class="cart-badge">0</span>
+            </span>
+            <span class="cart-icon-total" id="cart-icon-total">R$ 0,00</span>
+        </div>
+    </header>
+
+    <section class="hero-section" id="inicio">
+        <div class="hero-content">
+            <!-- Preenchido pelo script.js com base em configuracoes/geral (heroTag/heroTitulo/heroSubtitulo) -->
+            <span class="hero-tag">Sabor de verdade</span>
+            <h2>Açaí, crepes e muito mais</h2>
+            <p>Monte do seu jeito e peça em poucos cliques</p>
+        </div>
+    </section>
+
+    <main class="products" id="produtos">
+        <!-- Preenchido pelo script.js: título da categoria + botão de voltar, só visível
+             quando o cliente já escolheu uma categoria (não aparece na tela de categorias) -->
+        <div class="products-heading" id="products-heading" hidden></div>
+        <div class="products-container"><!-- cards ou categorias gerados pelo script --></div>
+    </main>
+
+    <!-- Preenchido pelo script.js com base em configuracoes/geral (sobreFoto/sobreNome/sobreTexto/sobreLink) -->
+    <section class="about-section" id="about-section" hidden>
+        <div class="about-content">
+            <img class="about-photo" id="about-photo" src="" alt="">
+            <div class="about-text">
+                <span class="about-tag">Quem faz</span>
+                <h2 id="about-nome"></h2>
+                <p id="about-texto"></p>
+                <div class="about-links">
+                    <a class="about-link about-link-instagram" id="about-link" href="" target="_blank" rel="noopener" hidden>
+                        <i class="fa-brands fa-instagram" aria-hidden="true"></i> Instagram
+                    </a>
+                    <a class="about-link about-link-whatsapp" id="about-whatsapp-link" href="" target="_blank" rel="noopener" hidden>
+                        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Fale no WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="cart-overlay"></div>
+
+    <aside class="cart-sidebar" aria-label="Carrinho">
+        <div class="cart-header">
+            <h3>Meu Carrinho <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></h3>
+            <button class="close-cart-btn" aria-label="Fechar carrinho">&times;</button>
+        </div>
+
+        <div class="cart-steps-indicator" id="cart-steps-indicator">
+            <span class="cart-step-dot active" data-step="1"><span class="cart-step-dot-num">1</span><span class="cart-step-dot-label">Itens</span></span>
+            <span class="cart-step-dot" data-step="2"><span class="cart-step-dot-num">2</span><span class="cart-step-dot-label">Entrega</span></span>
+            <span class="cart-step-dot" data-step="3"><span class="cart-step-dot-num">3</span><span class="cart-step-dot-label">Pagamento</span></span>
+            <span class="cart-step-dot" data-step="4"><span class="cart-step-dot-num">4</span><span class="cart-step-dot-label">Dados</span></span>
+            <span class="cart-step-dot" data-step="5"><span class="cart-step-dot-num">5</span><span class="cart-step-dot-label">Resumo</span></span>
+        </div>
+
+        <div class="cart-steps-wrap">
+
+            <!-- ETAPA 1: itens do carrinho -->
+            <section class="cart-step" id="cart-step-1" data-step="1">
+                <div class="cart-step-heading">
+                    <h4>Itens no carrinho</h4>
+                    <span class="cart-step-items-count" id="cart-items-count">0 itens</span>
+                </div>
+                <div class="cart-body"></div>
+                <div class="cart-step1-total">
+                    <span>Total</span>
+                    <span id="cart-step1-total-valor">R$ 0,00</span>
+                </div>
+            </section>
+
+            <!-- ETAPA 2: entrega ou retirada -->
+            <section class="cart-step" id="cart-step-2" data-step="2" hidden>
+                <h4 class="cart-step-title">Como você quer receber?</h4>
+                <div class="options-toggle" role="tablist">
+                    <button class="delivery-btn active" data-option="delivery" role="tab" aria-selected="true">
+                        <i class="fa-solid fa-motorcycle" aria-hidden="true"></i> Entrega (Moto)
+                    </button>
+                    <button class="delivery-btn" data-option="pickup" role="tab" aria-selected="false">
+                        <i class="fa-solid fa-store" aria-hidden="true"></i> Retirada
+                    </button>
+                </div>
+
+                <div id="delivery-form-container">
+                    <div class="form-group">
+                        <label for="delivery-cep">CEP</label>
+                        <input type="text" id="delivery-cep" placeholder="00000-000" maxlength="9" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="delivery-address">Endereço</label>
+                        <textarea id="delivery-address" placeholder="Lote, Quadra, Número" required></textarea>
+                    </div>
+
+                    <div class="delivery-fee-notice">
+                        Entrega feita por motoboy/app (ex: Uber Moto). A taxa é combinada com você pelo WhatsApp após o pedido.
+                    </div>
+                </div>
+
+                <div id="pickup-form-container" style="display: none;">
+                    <div class="form-group">
+                        <label>Agende a Data e Hora</label>
+                        <div class="date-time-row">
+                            <input type="date" id="pickup-date" required>
+                            <select id="pickup-time" required>
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="12:00">12:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                                <option value="18:00">18:00</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ETAPA 3: pagamento e detalhes -->
+            <section class="cart-step" id="cart-step-3" data-step="3" hidden>
+                <div class="payment-options-container payment-options-container--etapa">
+                    <h4>Forma de Pagamento</h4>
+
+                    <label class="payment-option selected">
+                        <input type="radio" name="payment" value="PIX" checked> PIX
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="Cartão de Crédito (na entrega)"> Cartão de Crédito <small>(na entrega)</small>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="Cartão de Débito (na entrega)"> Cartão de Débito <small>(na entrega)</small>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="Dinheiro"> Dinheiro
+                    </label>
+
+                    <div id="troco-container">
+                        <div class="form-group">
+                            <label for="troco-para">Precisa de troco para quanto?</label>
+                            <input type="number" id="troco-para" placeholder="Ex: 50">
+                        </div>
+                    </div>
+                </div>
+
+                <label class="checkbox-option">
+                    <input type="checkbox" id="talher-checkbox">
+                    <i class="fa-solid fa-utensils" aria-hidden="true"></i> Precisa de colher/canudo descartável?
+                </label>
+
+                <div class="form-group">
+                    <label for="observacoes-input">Observações do pedido (opcional)</label>
+                    <textarea id="observacoes-input" rows="2" placeholder="Ex: sem granola, pouco leite condensado, embalagens separadas..."></textarea>
+                </div>
+
+                <div class="coupon-container">
+                    <input type="text" id="coupon-input" placeholder="Cupom de desconto">
+                    <button id="apply-coupon-btn">Aplicar</button>
+                </div>
+
+                <p id="coupon-feedback" class="coupon-feedback"></p>
+            </section>
+
+            <!-- ETAPA 4: identificação -->
+            <section class="cart-step" id="cart-step-4" data-step="4" hidden>
+                <h4 class="cart-step-title">Seus dados</h4>
+                <div class="form-group">
+                    <label for="identificacao-nome">Nome completo</label>
+                    <input type="text" id="identificacao-nome" placeholder="Nome e sobrenome" required>
+                </div>
+                <div class="form-group">
+                    <label for="identificacao-telefone">Telefone (WhatsApp)</label>
+                    <input type="tel" id="identificacao-telefone" placeholder="(XX) XXXXX-XXXX" maxlength="15" required>
+                </div>
+            </section>
+
+            <!-- ETAPA 5: resumo do pedido -->
+            <section class="cart-step" id="cart-step-5" data-step="5" hidden>
+                <h4 class="cart-step-title">Resumo do pedido</h4>
+
+                <div class="resumo-bloco" id="resumo-itens-bloco"></div>
+                <div class="resumo-bloco" id="resumo-entrega-bloco"></div>
+                <div class="resumo-bloco" id="resumo-pagamento-bloco"></div>
+                <div class="resumo-bloco" id="resumo-identificacao-bloco"></div>
+
+                <div class="cart-summary">
+                    <div class="summary-line"><span>Subtotal</span><span id="cart-subtotal">R$ 0,00</span></div>
+                    <div class="summary-line discount-line" style="display: none;">
+                        <span>Desconto</span><span id="cart-discount">- R$ 0,00</span>
+                    </div>
+                    <div class="summary-line total"><span>Total</span><span id="cart-total">R$ 0,00</span></div>
+                </div>
+            </section>
+
+            <!-- Confirmação de envio (com o código do pedido) -->
+            <section class="cart-step cart-step-sucesso" id="cart-step-sucesso" hidden>
+                <div class="pedido-sucesso">
+                    <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                    <h4>Pedido enviado!</h4>
+                    <p>Confirme o envio na conversa do WhatsApp que abrimos. Guarde o código abaixo — é com ele que você (ou a loja) localiza o seu pedido:</p>
+                    <div class="pedido-sucesso-codigo" id="pedido-sucesso-codigo">AA000000</div>
+                    <button class="cart-nav-avancar" id="cart-btn-novo-pedido" type="button">Fazer novo pedido</button>
+                </div>
+            </section>
+
+        </div>
+
+        <div class="cart-nav-buttons" id="cart-nav-buttons">
+            <button class="cart-nav-voltar" id="cart-nav-voltar" type="button" hidden><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar</button>
+            <button class="cart-nav-avancar" id="cart-nav-avancar" type="button">Avançar <span id="cart-nav-avancar-total"></span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+            <button id="finish-order-btn" class="finish-order-btn" type="button" hidden>
+                <i class="fab fa-whatsapp" aria-hidden="true"></i> Enviar Pedido <span id="finish-order-total"></span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="view-cart-banner" aria-live="polite">
+        <p>Total: <span id="banner-total">R$ 0,00</span></p>
+        <button class="view-cart-banner-btn">Ver Carrinho</button>
+    </div>
+
+    <footer>
+        <p>2026 - PG Semi Joias. Todos os direitos reservados</p>
+        <p class="footer-credit">Site desenvolvido por <a href="#" id="footer-credit-link" target="_blank" rel="noopener">TF Solutions</a></p>
+    </footer>
+
+    <!-- Modal de detalhes do produto (abre ao clicar na foto do card) -->
+    <div class="info-overlay" id="detail-overlay"></div>
+    <div class="detail-modal" id="detail-modal" role="dialog" aria-modal="true" aria-label="Detalhes do produto">
+        <button class="info-close" id="detail-close" aria-label="Fechar">&times;</button>
+        <div class="detail-carousel">
+            <div class="detail-carousel-track" id="detail-carousel-track"></div>
+            <button class="detail-carousel-arrow prev" id="detail-prev" aria-label="Foto anterior" hidden><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="detail-carousel-arrow next" id="detail-next" aria-label="Próxima foto" hidden><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="detail-carousel-dots" id="detail-dots" hidden></div>
+        </div>
+        <div class="detail-info">
+            <span class="detail-badge-destaque" id="detail-badge-destaque" hidden><i class="fa-solid fa-star" aria-hidden="true"></i> Destaque</span>
+            <p class="detail-codigo" id="detail-codigo"></p>
+            <h2 id="detail-nome"></h2>
+            <p class="detail-details" id="detail-details" hidden></p>
+            <p class="detail-descricao" id="detail-descricao"></p>
+            <p class="product-tag" id="detail-tag" hidden></p>
+            <div class="detail-option-group" id="detail-size-group" hidden>
+                <label class="detail-option-label">Tamanho</label>
+                <select class="detail-size-select" id="detail-size-select" aria-label="Escolha o tamanho"></select>
+            </div>
+            <div class="detail-option-group" id="detail-incluso-group" hidden>
+                <label class="detail-option-label" id="detail-incluso-label">Escolha uma opção</label>
+                <select class="detail-incluso-select" id="detail-incluso-select" aria-label="Escolha uma opção"></select>
+            </div>
+            <div class="detail-option-group" id="detail-complementos-group" hidden>
+                <label class="detail-option-label">Complementos grátis <span id="detail-complementos-contador" class="detail-option-counter"></span></label>
+                <div class="detail-checklist" id="detail-complementos-lista"></div>
+            </div>
+            <div class="detail-option-group" id="detail-adicionais-group" hidden>
+                <label class="detail-option-label">Adicionais</label>
+                <div class="detail-checklist" id="detail-adicionais-lista"></div>
+            </div>
+            <p class="detail-price" id="detail-price"></p>
+            <button class="product-button" id="detail-comprar-btn">Adicionar ao carrinho</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="./script.js"></script>
+</body>
+
+</html>

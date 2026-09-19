@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seed Firebase – Mamona's Açaí</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    h1 { font-size: 1.4rem; margin-bottom: 8px; color: #F2C94C; }
+    p  { font-size: .9rem; color: #aaa; margin-bottom: 24px; text-align: center; max-width: 480px; }
+    #btn { padding: 14px 36px; background: #F2C94C; color: #1E1033; font-size: 1rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: opacity .2s; }
+    #btn:disabled { opacity: .45; cursor: not-allowed; }
+    #login-box { width: 100%; max-width: 320px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+    #login-box input { padding: 10px 12px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #eee; font-size: .9rem; }
+    #login-box input:focus { outline: none; border-color: #F2C94C; }
+    #login-status { font-size: .8rem; text-align: center; margin-top: -8px; margin-bottom: 16px; min-height: 1.1em; }
+    #log  { margin-top: 24px; width: 100%; max-width: 540px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 16px; font-size: .8rem; font-family: monospace; max-height: 360px; overflow-y: auto; }
+    .ok   { color: #4caf50; }
+    .err  { color: #f44336; }
+    .info { color: #90caf9; }
+  </style>
+</head>
+<body>
+
+<h1>🔥 Seed de Produtos – Mamona's Açaí</h1>
+<p>As regras do Firestore só permitem gravar quando o pedido vem de alguém logado — por isso, entre com o e-mail e a senha do admin (o mesmo login usado no <code>admin.html</code>) e depois clique no botão para enviar todos os produtos, categorias e o cupom. Execute <strong>apenas uma vez</strong>. Se rodar novamente, usará <code>set</code> com o mesmo ID (não duplica). Os preços e sabores abaixo são um ponto de partida — ajuste tudo depois pelo admin (aba Produtos), inclusive as fotos.</p>
+
+<div id="login-box">
+  <input type="email" id="seed-email" placeholder="E-mail do admin" autocomplete="username">
+  <input type="password" id="seed-senha" placeholder="Senha do admin" autocomplete="current-password">
+</div>
+<div id="login-status"></div>
+
+<button id="btn">🚀 Entrar e Enviar Produtos ao Firebase</button>
+
+<div id="log"><span class="info">Aguardando…</span></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAU9m89_OAsxJy7MggJkdY88wmvuCISALU",
+  authDomain: "mamonas-acai.firebaseapp.com",
+  projectId: "mamonas-acai",
+  storageBucket: "mamonas-acai.firebasestorage.app",
+  messagingSenderId: "778665319873",
+  appId: "1:778665319873:web:bd7b95b2f65f5ac08aa340"
+};
+
+// Imagens abaixo são fotos genéricas (banco de imagens gratuito Unsplash) só para os cards terem uma
+// ilustração melhor do que um retângulo colorido — troque pelas fotos reais dos produtos quando puder,
+// pelo admin (aba Produtos → Upload/Câmera).
+const img = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=800&h=800&q=80`;
+
+// Cada item de "tamanhos" é { nome, preco, complementosGratis }.
+// "complementosGratis" é quantos itens da lista de complementos o cliente pode escolher sem custo nesse tamanho.
+// "opcaoInclusa" é uma escolha simples incluída no preço (ex: sabor) — deixe null quando não houver.
+// "adicionaisPagos" são extras cobrados à parte.
+const produtos = [
+  // ── AÇAÍ ──────────────────────────────────────────────────────────────
+  {
+    id: 1, nome: "Açaí Tradicional", categoria: "acai",
+    tamanhos: [
+      { nome: "300ml", preco: 13.00, complementosGratis: 2 },
+      { nome: "500ml", preco: 18.00, complementosGratis: 3 },
+      { nome: "700ml", preco: 23.00, complementosGratis: 4 },
+    ],
+    opcaoInclusa: null,
+    complementosLista: ["Granola", "Leite em pó", "Leite condensado", "Paçoca", "Morango", "Banana", "Granulado", "Amendoim"],
+    adicionaisPagos: [
+      { nome: "Nutella", preco: 5.00 },
+      { nome: "Leite Ninho", preco: 4.00 },
+      { nome: "Morango extra", preco: 3.00 },
+      { nome: "Granola turbinada", preco: 3.00 },
+    ],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1627308594190-a057cd4bfac8"),
+    descricao: "Açaí puro batido na hora, cremoso, com complementos grátis inclusos conforme o tamanho.",
+  },
+  {
+    id: 2, nome: "Açaí com Morango", categoria: "acai",
+    tamanhos: [
+      { nome: "300ml", preco: 15.00, complementosGratis: 2 },
+      { nome: "500ml", preco: 20.00, complementosGratis: 3 },
+      { nome: "700ml", preco: 25.00, complementosGratis: 4 },
+    ],
+    opcaoInclusa: null,
+    complementosLista: ["Granola", "Leite em pó", "Leite condensado", "Paçoca", "Morango", "Banana", "Granulado", "Amendoim"],
+    adicionaisPagos: [
+      { nome: "Nutella", preco: 5.00 },
+      { nome: "Leite Ninho", preco: 4.00 },
+      { nome: "Morango extra", preco: 3.00 },
+    ],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1684403620650-81dc661a69db"),
+    descricao: "Açaí batido com morango, já vem com um toque adocicado natural.",
+  },
+
+  // ── CREPE NO COPO ────────────────────────────────────────────────────
+  {
+    id: 3, nome: "Crepe no Copo", categoria: "crepe-copo",
+    tamanhos: [ { nome: "", preco: 16.00, complementosGratis: 0 } ],
+    opcaoInclusa: { label: "Sabor", opcoes: ["Ninho com Nutella", "Morango com Nutella", "Doce de Leite", "Oreo"] },
+    complementosLista: [],
+    adicionaisPagos: [
+      { nome: "Calda extra", preco: 3.00 },
+      { nome: "Morango extra", preco: 3.00 },
+    ],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1565087170449-fa23854a6100"),
+    descricao: "Camadas de massa de crepe fininha, recheio cremoso e cobertura, servido no copo.",
+  },
+
+  // ── CREPE SALGADO ────────────────────────────────────────────────────
+  {
+    id: 4, nome: "Crepe de Frango com Catupiry", categoria: "crepe-salgado",
+    tamanhos: [ { nome: "", preco: 18.00, complementosGratis: 0 } ],
+    opcaoInclusa: null, complementosLista: [], adicionaisPagos: [],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1562059390-a761a084768e"),
+    descricao: "Massa de crepe salgada recheada com frango desfiado e catupiry cremoso.",
+  },
+  {
+    id: 5, nome: "Crepe de Carne Seca com Catupiry", categoria: "crepe-salgado",
+    tamanhos: [ { nome: "", preco: 20.00, complementosGratis: 0 } ],
+    opcaoInclusa: null, complementosLista: [], adicionaisPagos: [],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1671572579845-52270341950f"),
+    descricao: "Recheio de carne seca desfiada com catupiry, na massa de crepe salgada.",
+  },
+  {
+    id: 6, nome: "Crepe de Calabresa", categoria: "crepe-salgado",
+    tamanhos: [ { nome: "", preco: 17.00, complementosGratis: 0 } ],
+    opcaoInclusa: null, complementosLista: [], adicionaisPagos: [],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1646530208887-8a791bff4701"),
+    descricao: "Calabresa fatiada com queijo derretido na massa de crepe salgada.",
+  },
+
+  // ── CREPE DOCE ───────────────────────────────────────────────────────
+  {
+    id: 7, nome: "Crepe Doce de Ninho com Nutella", categoria: "crepe-doce",
+    tamanhos: [ { nome: "", preco: 17.00, complementosGratis: 0 } ],
+    opcaoInclusa: null, complementosLista: [],
+    adicionaisPagos: [ { nome: "Morango extra", preco: 3.00 } ],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1734056650036-7002ede7b8f8"),
+    descricao: "Massa de crepe doce recheada com leite Ninho e Nutella.",
+  },
+  {
+    id: 8, nome: "Crepe Doce Romeu e Julieta", categoria: "crepe-doce",
+    tamanhos: [ { nome: "", preco: 16.00, complementosGratis: 0 } ],
+    opcaoInclusa: null, complementosLista: [], adicionaisPagos: [],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1731173432456-03df445fad64"),
+    descricao: "Queijo derretido com goiabada, na massa de crepe doce.",
+  },
+
+  // ── MILKSHAKE ────────────────────────────────────────────────────────
+  {
+    id: 9, nome: "Milkshake", categoria: "milkshake",
+    tamanhos: [
+      { nome: "300ml", preco: 14.00, complementosGratis: 0 },
+      { nome: "500ml", preco: 19.00, complementosGratis: 0 },
+    ],
+    opcaoInclusa: { label: "Sabor", opcoes: ["Chocolate", "Morango", "Baunilha", "Ovomaltine"] },
+    complementosLista: [],
+    adicionaisPagos: [
+      { nome: "Calda extra", preco: 2.50 },
+      { nome: "Chantilly", preco: 2.50 },
+    ],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1686638745403-d21193f16b2f"),
+    descricao: "Milkshake bem cremoso, batido na hora no sabor que você escolher.",
+  },
+
+  // ── SORVETE NO COPO ──────────────────────────────────────────────────
+  {
+    id: 10, nome: "Sorvete no Copo", categoria: "sorvete",
+    tamanhos: [
+      { nome: "1 bola", preco: 8.00, complementosGratis: 1 },
+      { nome: "2 bolas", preco: 13.00, complementosGratis: 2 },
+      { nome: "3 bolas", preco: 17.00, complementosGratis: 3 },
+    ],
+    opcaoInclusa: { label: "Sabor", opcoes: ["Chocolate", "Morango", "Flocos", "Creme", "Ninho"] },
+    complementosLista: ["Granulado", "Calda de chocolate", "Calda de morango", "Confete"],
+    adicionaisPagos: [ { nome: "Casquinha", preco: 2.00 } ],
+    disponibilidade: "pronta", prazoDias: null,
+    imagem: img("1755004609214-c252674df1ca"),
+    descricao: "Sorvete servido no copo, escolha o sabor e os complementos grátis inclusos.",
+  },
+];
+
+// Obs: o botão "Todos" é gerado automaticamente pela loja — não precisa (e não deve)
+// cadastrar uma categoria com esse nome/id aqui nem no admin.
+const categorias = [
+  { id: "acai",          nome: "Açaí",            icone: "fa-bowl-rice" },
+  { id: "crepe-copo",    nome: "Crepe no Copo",    icone: "fa-ice-cream" },
+  { id: "crepe-salgado", nome: "Crepe Salgado",    icone: "fa-pizza-slice" },
+  { id: "crepe-doce",    nome: "Crepe Doce",       icone: "fa-cookie" },
+  { id: "milkshake",     nome: "Milkshake",        icone: "fa-mug-saucer" },
+  { id: "sorvete",       nome: "Sorvete no Copo",  icone: "fa-ice-cream" },
+];
+
+const cupons = [
+  { codigo: "DESCONTO10", tipo: "percentual", valor: 10, valorMinimo: 0, validade: null, ativo: true },
+];
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+const log = document.getElementById("log");
+const btn = document.getElementById("btn");
+const loginStatus = document.getElementById("login-status");
+
+const addLog = (msg, tipo = "ok") => {
+  const span = document.createElement("span");
+  span.className = tipo;
+  span.textContent = msg;
+  log.appendChild(span);
+  log.appendChild(document.createElement("br"));
+  log.scrollTop = log.scrollHeight;
+};
+
+btn.addEventListener("click", async () => {
+  const email = document.getElementById("seed-email").value.trim();
+  const senha = document.getElementById("seed-senha").value;
+  if (!email || !senha) {
+    loginStatus.textContent = "Preencha o e-mail e a senha do admin antes de enviar.";
+    loginStatus.className = "err";
+    return;
+  }
+
+  btn.disabled = true;
+  log.innerHTML = "";
+  loginStatus.textContent = "";
+
+  addLog("▶ Fazendo login...", "info");
+  try {
+    await auth.signInWithEmailAndPassword(email, senha);
+    addLog("✔ Login ok", "ok");
+  } catch (e) {
+    addLog(`✘ Falha no login — ${e.message}`, "err");
+    addLog("Verifique se esse usuário já foi criado em Authentication → Users no Firebase.", "info");
+    btn.disabled = false;
+    return;
+  }
+
+  addLog("", "info");
+  addLog("▶ Iniciando envio...", "info");
+
+  let ok = 0, erros = 0;
+
+  for (const p of produtos) {
+    try {
+      const precoBase = Math.min(...p.tamanhos.map(t => t.preco));
+      await db.collection("produtos").doc(String(p.id)).set({
+        ...p,
+        preco: precoBase,
+        ativo: true,
+        destaque: false,
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      addLog(`✔ [${p.id}] ${p.nome}`, "ok");
+      ok++;
+    } catch (e) {
+      addLog(`✘ [${p.id}] ${p.nome} — ${e.message}`, "err");
+      erros++;
+    }
+  }
+
+  addLog("", "info");
+  addLog("▶ Enviando categorias...", "info");
+  for (const c of categorias) {
+    try {
+      await db.collection("categorias").doc(c.id).set(c);
+      addLog(`✔ Categoria: ${c.nome}`, "ok");
+    } catch (e) {
+      addLog(`✘ Categoria: ${c.nome} — ${e.message}`, "err");
+      erros++;
+    }
+  }
+
+  addLog("", "info");
+  addLog("▶ Enviando cupons...", "info");
+  for (const c of cupons) {
+    try {
+      await db.collection("cupons").doc(c.codigo).set(c);
+      addLog(`✔ Cupom: ${c.codigo}`, "ok");
+    } catch (e) {
+      addLog(`✘ Cupom: ${c.codigo} — ${e.message}`, "err");
+      erros++;
+    }
+  }
+
+  addLog("", "info");
+  addLog(`━━━ CONCLUÍDO: ${ok} produtos enviados, ${erros} erros ━━━`, erros > 0 ? "err" : "info");
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>
